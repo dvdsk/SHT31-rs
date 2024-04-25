@@ -20,7 +20,7 @@ pub(crate) async fn single_shot_read<Mode, I2C: I2c>(sensor: &mut SHT31<Mode, I2
     // TODO: If error is a NACK then return another unique error to identify
     let mut buffer = [0; 6];
 
-    sensor.i2c_read(&[], &mut buffer).await?;
+    sensor.i2c_read(&mut buffer).await?;
     sensor.process_data(buffer)
 }
 

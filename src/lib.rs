@@ -275,7 +275,7 @@ where
     pub async fn status(&mut self) -> Result<Status> {
         let mut buffer = [0; 3];
 
-        self.i2c_read(&[0xF3, 0x2D], &mut buffer).await?;
+        self.i2c_write_read(&[0xF3, 0x2D], &mut buffer).await?;
 
         // Verify data
         let calculated = calculate_checksum(&Crc::<u8>::new(&CRC_ALGORITHM), buffer[0], buffer[1]);
@@ -308,7 +308,14 @@ where
         }
     }
 
-    async fn i2c_read(&mut self, bytes: &[u8], buffer: &mut [u8]) -> Result<()> {
+    async fn i2c_read(&mut self, buffer: &mut [u8]) -> Result<()> {
+        match self.i2c.read(self.address, buffer).await {
+            Ok(res) => Ok(res),
+            Err(_) => Err(SHTError::ReadI2CError),
+        }
+    }
+
+    async fn i2c_write_read(&mut self, bytes: &[u8], buffer: &mut [u8]) -> Result<()> {
         match self.i2c.write_read(self.address, bytes, buffer).await {
             Ok(res) => Ok(res),
             Err(_) => Err(SHTError::WriteReadI2CError),
