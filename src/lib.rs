@@ -6,7 +6,7 @@ pub mod mode;
 
 use crate::mode::SimpleSingleShot;
 use crc::{Algorithm, Crc};
-use embedded_hal::{delay::DelayNs, i2c::I2c};
+use embedded_hal_async::{delay::DelayNs, i2c::I2c};
 
 pub use crate::error::{Result, SHTError};
 pub mod prelude {
@@ -231,15 +231,15 @@ where
     }
 
     /// Set the heater's heating state
-    pub fn set_heating(&mut self, heating: bool) -> Result<()> {
+    pub async fn set_heating(&mut self, heating: bool) -> Result<()> {
         self.heater = heating;
-        self.switch_heater()
+        self.switch_heater().await
     }
 
     /// Enables the onboard heater
-    pub fn with_heating(mut self) -> Result<Self> {
+    pub async fn with_heating(mut self) -> Result<Self> {
         self.heater = true;
-        self.switch_heater()?;
+        self.switch_heater().await?;
         Ok(self)
     }
 
@@ -248,34 +248,34 @@ where
     }
 
     /// Switch the heater on or off
-    fn switch_heater(&mut self) -> Result<()> {
+    async fn switch_heater(&mut self) -> Result<()> {
         let lsb = if self.heater { 0x6D } else { 0x66 };
 
-        self.i2c_write(&[0x30, lsb])
+        self.i2c_write(&[0x30, lsb]).await
     }
 
     /// Cancel the currently running command, this is necessary for when attempting to transition
     /// between single shot and periodic
-    pub fn break_command(&mut self) -> Result<()> {
-        self.i2c_write(&[0x30, 0x93])
+    pub async fn break_command(&mut self) -> Result<()> {
+        self.i2c_write(&[0x30, 0x93]).await
     }
 
     /// Trigger a soft reset
-    pub fn soft_reset(&mut self) -> Result<()> {
-        self.i2c_write(&[0x30, 0xA2])
+    pub async fn soft_reset(&mut self) -> Result<()> {
+        self.i2c_write(&[0x30, 0xA2]).await
     }
 
     /// Triggers an I2C general reset, keep in mind that this will reset all
     /// I2C devices connected to this line
-    pub fn reset(&mut self) -> Result<()> {
-        self.i2c_write(&[0x00, 0x06])
+    pub async fn reset(&mut self) -> Result<()> {
+        self.i2c_write(&[0x00, 0x06]).await
     }
 
     /// Read the sensors status
-    pub fn status(&mut self) -> Result<Status> {
+    pub async fn status(&mut self) -> Result<Status> {
         let mut buffer = [0; 3];
 
-        self.i2c_read(&[0xF3, 0x2D], &mut buffer)?;
+        self.i2c_read(&[0xF3, 0x2D], &mut buffer).await?;
 
         // Verify data
         let calculated = calculate_checksum(&Crc::<u8>::new(&CRC_ALGORITHM), buffer[0], buffer[1]);
@@ -292,8 +292,8 @@ where
     }
 
     /// Clear all status registers
-    pub fn clear_status(&mut self) -> Result<()> {
-        self.i2c_write(&[0x30, 0x41])
+    pub async fn clear_status(&mut self) -> Result<()> {
+        self.i2c_write(&[0x30, 0x41]).await
     }
 
     /// Consumes the instance and returns the i2c
@@ -301,15 +301,15 @@ where
         self.i2c
     }
 
-    fn i2c_write(&mut self, bytes: &[u8]) -> Result<()> {
-        match self.i2c.write(self.address, bytes) {
+    async fn i2c_write(&mut self, bytes: &[u8]) -> Result<()> {
+        match self.i2c.write(self.address, bytes).await {
             Ok(res) => Ok(res),
             Err(_) => Err(SHTError::WriteI2CError),
         }
     }
 
-    fn i2c_read(&mut self, bytes: &[u8], buffer: &mut [u8]) -> Result<()> {
-        match self.i2c.write_read(self.address, bytes, buffer) {
+    async fn i2c_read(&mut self, bytes: &[u8], buffer: &mut [u8]) -> Result<()> {
+        match self.i2c.write_read(self.address, bytes, buffer).await {
             Ok(res) => Ok(res),
             Err(_) => Err(SHTError::WriteReadI2CError),
         }

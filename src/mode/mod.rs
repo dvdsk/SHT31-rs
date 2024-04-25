@@ -10,10 +10,10 @@ pub use simple_single_shot::SimpleSingleShot;
 
 pub trait Sht31Reader {
     /// Read the sensor readings
-    fn read(&mut self) -> Result<Reading>;
+    fn read(&mut self) -> impl core::future::Future<Output = Result<Reading>>;
 }
 
 pub trait Sht31Measure {
     /// Initialize reading
-    fn measure(&mut self) -> Result<()>;
+    fn measure(&mut self) -> impl core::future::Future<Output = Result<()>>;
 }

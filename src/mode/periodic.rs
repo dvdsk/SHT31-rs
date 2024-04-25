@@ -3,7 +3,7 @@ use crate::{
     mode::{Sht31Measure, Sht31Reader},
     Accuracy, Reading, SHT31,
 };
-use embedded_hal::i2c::I2c;
+use embedded_hal_async::i2c::I2c;
 
 /// Periodic reading where reading returns the last available data
 #[derive(Default, Copy, Clone, Debug)]
@@ -57,10 +57,10 @@ impl<I2C> Sht31Reader for SHT31<Periodic, I2C>
 where
     I2C: I2c,
 {
-    fn read(&mut self) -> Result<Reading> {
+    async fn read(&mut self) -> Result<Reading> {
         let mut buffer = [0; 6];
 
-        self.i2c_read(&[0xE0, 0x00], &mut buffer)?;
+        self.i2c_read(&[0xE0, 0x00], &mut buffer).await?;
         self.process_data(buffer)
     }
 }
@@ -72,7 +72,7 @@ where
     /// Initialized the periodic measuring mode,
     /// a break command must be run in order to change
     /// the measuring style
-    fn measure(&mut self) -> Result<()> {
+    async fn measure(&mut self) -> Result<()> {
         let (msb, lsb) = if self.mode.art {
             (0x2B, 0x32)
         } else {
@@ -106,6 +106,6 @@ where
             (self.mode.mps as u8, lsb)
         };
 
-        self.i2c_write(&[msb, lsb])
+        self.i2c_write(&[msb, lsb]).await
     }
 }

@@ -3,7 +3,7 @@ use crate::{
     mode::{single_shot::single_shot_read, Sht31Reader},
     Accuracy, Reading, SHT31,
 };
-use embedded_hal::{delay::DelayNs, i2c::I2c};
+use embedded_hal_async::{delay::DelayNs, i2c::I2c};
 
 /// A simple reading that blocks until the measurement is obtained
 #[derive(Copy, Clone, Debug)]
@@ -51,7 +51,7 @@ where
     D: DelayNs,
 {
     /// It will initiate a read and wont stop until its either exhausted its retries or a reading is found
-    fn read(&mut self) -> Result<Reading> {
+    async fn read(&mut self) -> Result<Reading> {
         // Commence reading
         let lsb = match self.accuracy {
             Accuracy::High => 0x06,
@@ -59,16 +59,16 @@ where
             Accuracy::Low => 0x10,
         };
 
-        self.i2c_write(&[0x2C, lsb])?;
+        self.i2c_write(&[0x2C, lsb]).await?;
 
         // TODO: figure out clock stretching
         let mut read_attempt = Err(PlaceholderError);
 
         for _ in 0..self.mode.max_retries {
-            read_attempt = single_shot_read(self);
+            read_attempt = single_shot_read(self).await;
 
             if read_attempt.is_err() {
-                self.mode.delay.delay_ms(self.mode.ms_delay);
+                self.mode.delay.delay_ms(self.mode.ms_delay).await;
             } else {
                 return read_attempt;
             }
