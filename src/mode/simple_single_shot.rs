@@ -6,7 +6,7 @@ use crate::{
 use embedded_hal_async::{delay::DelayNs, i2c::I2c};
 
 /// A simple reading that blocks until the measurement is obtained
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, defmt::Format)]
 pub struct SimpleSingleShot<D: DelayNs> {
     max_retries: u8,
     ms_delay: u32,

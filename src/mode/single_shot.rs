@@ -6,7 +6,7 @@ use crate::{
 use embedded_hal_async::i2c::I2c;
 
 /// Complex read that may require multiple attempts to read output until its ready
-#[derive(Default, Copy, Clone, Debug)]
+#[derive(Default, Copy, Clone, defmt::Format)]
 pub struct SingleShot {}
 
 impl SingleShot {

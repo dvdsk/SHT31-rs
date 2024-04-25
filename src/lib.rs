@@ -35,7 +35,7 @@ const CELSIUS_PAIR: (f32, f32) = (45f32, 175f32);
 const FAHRENHEIT_PAIR: (f32, f32) = (49f32, 315f32);
 
 /// The temperature and humidity sensor
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, defmt::Format)]
 pub struct SHT31<Mode, I2C> {
     mode: Mode,
     i2c: I2C,
@@ -46,7 +46,7 @@ pub struct SHT31<Mode, I2C> {
 }
 
 /// Represents the reading gotten from the sensor
-#[derive(Default, Clone, Copy, Debug)]
+#[derive(Default, Clone, Copy, defmt::Format)]
 pub struct Reading {
     pub temperature: f32,
     pub humidity: f32,
@@ -54,7 +54,7 @@ pub struct Reading {
 
 /// The two supported I2C addresses
 #[allow(dead_code)]
-#[derive(Default, Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Default, Copy, Clone, defmt::Format, Ord, PartialOrd, Eq, PartialEq)]
 pub enum DeviceAddr {
     #[default]
     AD0 = 0x44,
@@ -63,7 +63,7 @@ pub enum DeviceAddr {
 
 /// Influences what the reading temperature numbers are
 #[allow(dead_code)]
-#[derive(Default, Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Default, Copy, Clone, defmt::Format, Ord, PartialOrd, Eq, PartialEq)]
 pub enum TemperatureUnit {
     Celsius,
     #[default]
@@ -73,7 +73,7 @@ pub enum TemperatureUnit {
 /// Determines the accuracy of the sensor, the higher the repeatability
 /// the longer it'll take and the more accurate it will be
 #[allow(dead_code)]
-#[derive(Default, Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Default, Copy, Clone, defmt::Format, Ord, PartialOrd, Eq, PartialEq)]
 pub enum Accuracy {
     #[default]
     High,
@@ -81,7 +81,7 @@ pub enum Accuracy {
     Low,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, defmt::Format)]
 pub struct Status {
     /// Last checksum transfer failed
     pub checksum_failed: bool,

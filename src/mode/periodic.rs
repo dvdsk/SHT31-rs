@@ -6,7 +6,7 @@ use crate::{
 use embedded_hal_async::i2c::I2c;
 
 /// Periodic reading where reading returns the last available data
-#[derive(Default, Copy, Clone, Debug)]
+#[derive(Default, Copy, Clone, defmt::Format)]
 pub struct Periodic {
     mps: MPS,
     art: bool,
@@ -14,7 +14,7 @@ pub struct Periodic {
 
 /// Stands for measurements per second
 #[allow(dead_code)]
-#[derive(Default, Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Default, Copy, Clone, defmt::Format, Ord, PartialOrd, Eq, PartialEq)]
 pub enum MPS {
     Half = 0x20,
     #[default]
