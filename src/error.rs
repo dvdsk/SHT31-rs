@@ -1,6 +1,7 @@
 pub type Result<T> = core::result::Result<T, SHTError>;
 #[cfg_attr(feature = "thiserror", derive(thiserror::Error))]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "postcard", derive(postcard::experimental::max_size::MaxSize))]
 #[derive(Debug, Copy, Clone, defmt::Format, Ord, PartialOrd, Eq, PartialEq)]
 pub enum SHTError {
     #[cfg_attr(feature = "thiserror", error("Read I2C Error"))]
